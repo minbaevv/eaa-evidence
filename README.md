@@ -37,7 +37,7 @@ EAA Evidence turns an `axe-core` scan into a **shareable evidence pack** instead
 
 ## What you get
 
-| | |
+| Feature | What you get |
 |---|---|
 | **Evidence log** | Timestamped record: URL, pages, engine version, viewport, limitations, and a SHA-256 evidence hash over the canonical result JSON. |
 | **Prioritized fixes** | Issues grouped by impact, with affected elements, WCAG tags, and rule documentation links. |
@@ -91,7 +91,7 @@ The scanner loads the page in Chromium, injects the vendored `axe-core`, walks s
 ### Windows (PowerShell)
 
 ```powershell
-git clone <your-fork-url>
+git clone https://github.com/minbaevv/eaa-evidence.git
 cd eaa-evidence
 .\setup.ps1     # venv + deps + Chromium + axe-core
 .\run.ps1       # http://127.0.0.1:8000
