@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.tickets_h }} — EAA Evidence{% endblock %}
+
+{% block content %}
+<section class="panel narrow" data-reveal>
+  <p class="eyebrow">{{ t.tickets_h }}</p>
+  <h1>{{ scan.company or scan.url }}</h1>
+  <p class="muted">{{ t.tickets_sub }}</p>
+
+  <div class="statement-actions">
+    <a class="button" href="/scans/{{ scan.id }}/report">{{ t.vpat_back }}</a>
+    <a class="button" href="/scans/{{ scan.id }}/tickets.json">{{ t.tickets_dl_json }}</a>
+    <a class="button" href="/scans/{{ scan.id }}/tickets.csv">{{ t.tickets_dl_csv }}</a>
+  </div>
+
+  {% if tickets %}
+    {% for ticket in tickets %}
+      <article class="issue-card ticket-card">
+        <div class="issue-title-row">
+          <span class="badge impact-{{ ticket.impact }}">{{ t['impact_' + ticket.impact] }}</span>
+          <strong>{{ ticket.summary }}</strong>
+        </div>
+        <p class="meta-line">
+          {{ ticket.key }} · {{ t.tickets_severity }}: {{ ticket.severity }} ·
+          EN 301 549 {{ ticket.en301549 }} · <code>{{ ticket.rule }}</code>
+        </p>
+        <pre><code>{{ ticket.body }}</code></pre>
+      </article>
+    {% endfor %}
+  {% else %}
+    <p>{{ t.tickets_empty }}</p>
+  {% endif %}
+</section>
+{% endblock %}

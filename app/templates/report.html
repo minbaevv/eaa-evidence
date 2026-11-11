@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ t.report_title.format(who=scan.company or scan.url) }}</title>
+  {% if inline_css %}
+    <style>{{ inline_css|safe }}</style>
+  {% else %}
+    <link rel="stylesheet" href="/static/styles.css">
+  {% endif %}
+</head>
+<body class="report-page">
+  <a class="skip-link" href="#report-main">{{ t.report_skip }}</a>
+
+  <header class="report-header">
+    <div class="container report-header-inner">
+      <div>
+        <p class="eyebrow">{{ t.eyebrow_pack }} · {{ result.scanned_at|dt }}</p>
+        <h1>{{ scan.company or scan.url }}</h1>
+        <p class="muted">{{ scan.url }}</p>
+      </div>
+      {% if not inline_css %}
+        <nav class="report-actions" aria-label="Report actions">
+          <a class="button" href="/scans/{{ scan.id }}/report.pdf">{{ t.dl_pdf }}</a>
+          <a class="button" href="/scans/{{ scan.id }}/report.html">{{ t.dl_html }}</a>
+          <a class="button" href="/scans/{{ scan.id }}/result.json">{{ t.dl_json }}</a>
+          <a class="button" href="/scans/{{ scan.id }}/statement">{{ t.dl_statement }}</a>
+          <a class="button" href="/scans/{{ scan.id }}/vpat">{{ t.dl_vpat }}</a>
+          <a class="button" href="/scans/{{ scan.id }}/tickets">{{ t.dl_tickets }}</a>
+          <a class="button" href="/scans/{{ scan.id }}/manual">{{ t.dl_manual }}</a>
+          <a class="button" href="/">{{ t.new_scan }}</a>
+          <span class="lang-switch" role="group" aria-label="Language / Язык">
+            <a href="?lang=en"{% if lang == "en" %} class="active" aria-current="true"{% endif %}>EN</a><span aria-hidden="true">/</span><a href="?lang=ru"{% if lang == "ru" %} class="active" aria-current="true"{% endif %}>RU</a>
+          </span>
+        </nav>
+      {% endif %}
+    </div>
+  </header>
+
+  <main id="report-main" class="container report-main">
+    <section class="summary-grid" aria-label="{{ t.scope_eyebrow_r }}" data-reveal>
+      <article class="score-card" data-tilt>
+        <p class="eyebrow">{{ t.score_eyebrow }}</p>
+        <div class="score-ring" data-reveal data-score="{{ summary.readiness_score }}" role="img" aria-label="{{ t.score_aria.format(score=summary.readiness_score) }}">
+          <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#5ea8ff"></stop>
+                <stop offset="100%" stop-color="#a78bfa"></stop>
+              </linearGradient>
+            </defs>
+            <circle class="ring-track" cx="60" cy="60" r="52"></circle>
+            <circle class="ring-value" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <p class="score"><span data-count="{{ summary.readiness_score }}">{{ summary.readiness_score }}</span><span class="score-of">/100</span></p>
+        </div>
+        <p class="muted">{{ t.score_note }}</p>
+        <p><span class="badge risk-{{ summary.risk_level|lower }}">{{ t['risk_' + (summary.risk_level|lower)] }} {{ t.risk_suffix }}</span></p>
+      </article>
+      <article class="metric-card" data-tilt>
+        <p class="metric-value" data-count="{{ summary.critical }}">{{ summary.critical }}</p>
+        <h2>{{ t.metric_critical }}</h2>
+        <p class="muted">{{ t.metric_critical_p }}</p>
+      </article>
+      <article class="metric-card" data-tilt>
+        <p class="metric-value" data-count="{{ summary.serious }}">{{ summary.serious }}</p>
+        <h2>{{ t.metric_serious }}</h2>
+        <p class="muted">{{ t.metric_serious_p }}</p>
+      </article>
+      <article class="metric-card" data-tilt>
+        <p class="metric-value" data-count="{{ summary.moderate }}">{{ summary.moderate }}</p>
+        <h2>{{ t.metric_moderate }}</h2>
+        <p class="muted">{{ t.metric_moderate_p }}</p>
+      </article>
+      <article class="metric-card" data-tilt>
+        <p class="metric-value" data-count="{{ summary.minor }}">{{ summary.minor }}</p>
+        <h2>{{ t.metric_minor }}</h2>
+        <p class="muted">{{ t.metric_minor_p }}</p>
+      </article>
+    </section>
+
+    <section class="panel callout-panel" aria-labelledby="scope-heading" data-reveal>
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">{{ t.scope_eyebrow_r }}</p>
+          <h2 id="scope-heading">{{ t.scope_title.format(n=summary.pages_scanned, word=plural(lang, summary.pages_scanned, t.page_one, t.page_few, t.page_many)) }}</h2>
+        </div>
+        <span class="badge badge-neutral">{{ standard }}</span>
+      </div>
+        {{ t.covered.format(issues=summary.issue_count, iword=plural(lang, summary.issue_count, t.crule_one, t.crule_few, t.crule_many), elements=summary.element_count, eword=plural(lang, summary.element_count, t.element_one, t.element_few, t.element_many)) }}
+        {% if summary.pages_failed %}
+          {{ t.pages_failed.format(n=summary.pages_failed) }}
+        {% endif %}
+      </p>
+      <p class="disclaimer">
+        <strong>{{ t.disclaimer_h }}</strong> {{ t.disclaimer_p }}
+      </p>
+    </section>
+
+    {% if top %}
+    <section class="panel" aria-labelledby="priority-heading" data-reveal>
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">{{ t.start_eyebrow }}</p>
+          <h2 id="priority-heading">{{ t.top_title.format(n=top|length) }}</h2>
+        </div>
+      </div>
+      <ol class="priority-list">
+        {% for issue in top %}
+          <li>
+            <div class="issue-title-row">
+              <span class="badge impact-{{ issue.impact }}">{{ t['impact_' + issue.impact] }}</span>
+              <strong>{{ issue.help }}</strong>
+              {% if issue.kind == "incomplete" %}
+                <span class="badge badge-neutral">{{ t.needs_review }}</span>
+              {% endif %}
+            </div>
+            <p>{{ issue.description }}</p>
+            <p class="meta-line">
+              {{ t.rule_label }} <code>{{ issue.id }}</code> · {{ t.affected_tpl.format(n=issue.node_count, word=plural(lang, issue.node_count, t.element_one, t.element_few, t.element_many)) }} · <a href="{{ issue.help_url }}" rel="noopener noreferrer">{{ t.rule_docs }}</a>{% if issue.en301549 %} · EN 301 549: {{ issue.en301549|join(", ") }}{% endif %}
+            </p>
+          </li>
+        {% endfor %}
+      </ol>
+    </section>
+    {% endif %}
+
+    {% if diff %}
+    <section class="panel" aria-labelledby="diff-heading" data-reveal>
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">{{ t.diff_eyebrow }}</p>
+          <h2 id="diff-heading">{{ t.diff_h }}</h2>
+        </div>
+        <span class="badge badge-neutral">{{ diff.since }}</span>
+      </div>
+      {% if diff.new_rules or diff.resolved_rules %}
+        <p class="muted">{{ t.diff_delta.format(before=diff.score_before, after=diff.score_after, delta=(diff.score_after - diff.score_before)) }}</p>
+        <p class="meta-line"><strong>{{ t.diff_new }}</strong>: {{ diff.new_rules|join(", ") or "—" }}</p>
+        <p class="meta-line"><strong>{{ t.diff_resolved }}</strong>: {{ diff.resolved_rules|join(", ") or "—" }}</p>
+      {% else %}
+        <p>{{ t.diff_none }}</p>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if trend|length > 1 %}
+    <section class="panel" aria-labelledby="trend-heading" data-reveal>
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">{{ t.trend_eyebrow }}</p>
+          <h2 id="trend-heading">{{ t.trend_h }}</h2>
+        </div>
+      </div>
+      <svg class="trend-svg" viewBox="0 0 640 140" role="img" aria-label="{{ t.trend_h }}" preserveAspectRatio="none">
+        <polyline points="{% for point in trend %}{{ (10 + (loop.index0 * (620 / ((trend|length - 1) if trend|length > 1 else 1))))|round(1) }},{{ (120 - (point.score * 1.1))|round(1) }} {% endfor %}" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>
+        {% for point in trend %}<circle cx="{{ (10 + (loop.index0 * (620 / ((trend|length - 1) if trend|length > 1 else 1))))|round(1) }}" cy="{{ (120 - (point.score * 1.1))|round(1) }}" r="4" fill="var(--violet)"><title>{{ point.date }}: {{ point.score }}</title></circle>{% endfor %}
+      </svg>
+      <p class="muted small">{{ (trend|first).date }} → {{ (trend|last).date }}</p>
+    </section>
+    {% endif %}
+    <section class="panel" aria-labelledby="issues-heading" data-reveal>
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">{{ t.backlog_eyebrow }}</p>
+          <h2 id="issues-heading">{{ t.issues_h2 }}</h2>
+        </div>
+        <span class="badge badge-neutral">{{ t.rules_count.format(n=issues|length, word=plural(lang, issues|length, t.rule_one, t.rule_few, t.rule_many)) }}</span>
+      </div>
+
+      {% if issues %}
+        <div class="issue-list">
+          {% for issue in issues %}
+            <article class="issue-card" data-reveal>
+              <div class="issue-title-row">
+                <span class="badge impact-{{ issue.impact }}">{{ t['impact_' + issue.impact] }}</span>
+                <h3>{{ issue.help }}</h3>
+                {% if issue.kind == "incomplete" %}
+                  <span class="badge badge-neutral">{{ t.needs_review }}</span>
+                {% endif %}
+              </div>
+              {% set issue_status = statuses.get(issue.id) %}
+              {% if issue_status %}
+                <p class="meta-line"><span class="badge badge-neutral">{{ t.issue_track }}: {{ t[issue_status] }}</span></p>
+              {% endif %}
+              <form method="post" action="/scans/{{ scan.id }}/issues" class="issue-actions">
+                <input type="hidden" name="rule_id" value="{{ issue.id }}">
+                <button type="submit" name="status" value="ack" class="mini-button">{{ t.status_ack }}</button>
+                <button type="submit" name="status" value="fixed" class="mini-button">{{ t.status_fixed }}</button>
+                <button type="submit" name="status" value="wontfix" class="mini-button">{{ t.status_wontfix }}</button>
+              </form>
+
+              <p>{{ issue.description }}</p>
+              <p class="meta-line">
+                {{ t.rule_label }} <code>{{ issue.id }}</code> ·
+                {{ t.th_page }}: <a href="{{ issue.page_url }}" rel="noopener noreferrer">{{ issue.page_title or issue.page_url }}</a> ·
+                {{ t.affected_tpl.format(n=issue.node_count, word=plural(lang, issue.node_count, t.element_one, t.element_few, t.element_many)) }}
+              </p>
+
+              {% if issue.wcag %}
+                <p class="tag-row" aria-label="{{ t.aria_wcag }}">
+                  {% for tag in issue.wcag %}
+                    <span class="tag">{{ wcag_labels.get(tag, tag) }}</span>
+                  {% endfor %}
+                </p>
+              {% endif %}
+              {% if issue.en301549 %}
+                <p class="tag-row" aria-label="{{ t.aria_en301549 }}">
+                  {% for clause in issue.en301549 %}
+                    <span class="tag tag-en" title="EN 301 549 clause {{ clause }}">§{{ clause }}</span>
+                  {% endfor %}
+                </p>
+              {% endif %}
+
+              {% if issue.nodes %}
+                <details>
+                  <summary>{{ t.show_affected }}{% if issue.node_count > issue.nodes|length %} {{ t.show_first_of.format(shown=issue.nodes|length, total=issue.node_count) }}{% endif %}</summary>
+                  <div class="node-list">
+                    {% for node in issue.nodes %}
+                      <div class="node">
+                        <p class="node-target"><code>{{ node.target }}</code></p>
+                        {% if node.html %}
+                          <pre><code>{{ node.html }}</code></pre>
+                        {% endif %}
+                        {% if node.failure_summary %}
+                          <p class="failure-summary">{{ node.failure_summary }}</p>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                </details>
+              {% endif %}
+
+              <p class="meta-line">
+                <a href="{{ issue.help_url }}" rel="noopener noreferrer">{{ t.open_docs }}</a>
+              </p>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>{{ t.no_issues }}</p>
+      {% endif %}
+    </section>
+
+    <section class="panel" aria-labelledby="pages-heading" data-reveal>
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">{{ t.coverage_eyebrow }}</p>
+          <h2 id="pages-heading">{{ t.pages_h2 }}</h2>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">{{ t.pages_caption }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ t.th_page }}</th>
+              <th scope="col">{{ t.th_status }}</th>
+              <th scope="col">{{ t.th_issues }}</th>
+              <th scope="col">{{ t.th_needs_review }}</th>
+              <th scope="col">{{ t.th_time }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for page in result.pages %}
+              <tr>
+                <td>
+                  <a href="{{ page.url }}" rel="noopener noreferrer">{{ page.title or page.url }}</a>
+                  <br><span class="muted small">{{ page.url }}</span>
+                  {% if page.error %}<br><span class="error-text">{{ page.error }}</span>{% endif %}
+                </td>
+                <td><span class="badge badge-neutral">{{ t['status_' + (page.status or 'failed')] }}</span></td>
+                <td>{{ page.issue_count }}</td>
+                <td>{{ page.needs_review_count }}</td>
+                <td>{{ page.duration_ms }} ms</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="evidence-heading" data-reveal>
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">{{ t.audit_eyebrow }}</p>
+          <h2 id="evidence-heading">{{ t.evidence_h2 }}</h2>
+        </div>
+      </div>
+      <dl class="evidence-list">
+        <div><dt>{{ t.ev_scan_id }}</dt><dd><code>{{ scan.id }}</code></dd></div>
+        <div><dt>{{ t.ev_url }}</dt><dd>{{ scan.url }}</dd></div>
+        <div><dt>{{ t.ev_at }}</dt><dd>{{ result.scanned_at|dt }}</dd></div>
+        <div><dt>{{ t.ev_standard }}</dt><dd>{{ standard }}</dd></div>
+        <div><dt>{{ t.ev_engine }}</dt><dd>axe-core {{ result.axe_version or "unknown" }}</dd></div>
+        <div><dt>{{ t.ev_viewport }}</dt><dd>1440 × 900, Chromium headless</dd></div>
+        <div><dt>{{ t.ev_duration }}</dt><dd>{{ result.duration_ms }} ms</dd></div>
+        <div><dt>{{ t.ev_pages }}</dt><dd>{{ summary.pages_scanned }}</dd></div>
+        <div><dt>{{ t.ev_hash }}</dt><dd><code>{{ result.evidence_hash or "—" }}</code></dd></div>
+      </dl>
+    </section>
+
+    <section class="panel" aria-labelledby="limits-heading" data-reveal>
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">{{ t.limits_eyebrow }}</p>
+          <h2 id="limits-heading">{{ t.limits_h2 }}</h2>
+        </div>
+      </div>
+      <ul class="check-list">
+        {% for limitation in result.limitations %}
+          <li>{{ limitation }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <p class="report-footer muted">
+      {{ t.report_footer }}
+    </p>
+  </main>
+  {% if not inline_css %}
+  <script src="/static/app.js" defer></script>
+  {% endif %}
+</body>
+</html>

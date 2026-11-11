@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.jpg binary
+*.png binary
+
+# Keep the vendored axe-core bundle and docs out of language stats/diffs
+app/static/vendor/** linguist-vendored
+docs/** linguist-documentation

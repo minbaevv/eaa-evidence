@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Error — EAA Evidence{% endblock %}
+
+{% block content %}
+<section class="panel narrow" data-reveal>
+  <p class="eyebrow">{{ t.err_eyebrow }}</p>
+  <h1>{{ status_code }}</h1>
+  <p>{{ detail }}</p>
+  <p><a class="button" href="/">{{ t.err_back }}</a></p>
+</section>
+{% endblock %}

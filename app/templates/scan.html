@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.scan_title.format(url=scan.url) }}{% endblock %}
+
+{% block content %}
+<section class="panel narrow" data-reveal{% if scan.status != "failed" %} data-scan-status data-scan-id="{{ scan.id }}" data-status-url="/api/scans/{{ scan.id }}" data-msg-running="{{ t.status_running_msg }}" data-msg-keep="{{ t.msg_keep }}" data-msg-complete="{{ t.msg_complete }}" data-msg-failed="{{ t.msg_failed }}" data-msg-failed-default="{{ t.msg_failed_default }}" data-msg-status-error="{{ t.msg_status_error }}" data-msg-status-failed="{{ t.msg_status_failed }}"{% endif %}>
+  <p class="eyebrow">{{ t.scan_eyebrow.format(id=scan.id[:8]) }}</p>
+  <h1>{{ t.scan_h1.format(url=scan.url) }}</h1>
+
+  {% if scan.status == "failed" %}
+    <div class="alert alert-error" role="alert">
+      <strong>{{ t.scan_failed_h }}</strong> {{ scan.error }}
+    </div>
+    <p><a class="button" href="/">{{ t.try_again }}</a></p>
+  {% else %}
+    <div class="spinner-wrap" aria-hidden="true"><span class="spinner"></span></div>
+    <p id="scan-status" class="status" role="status" aria-live="polite">
+      {% if scan.status == "running" %}{{ t.status_running_msg }}{% else %}{{ t.status_queued_msg }}{% endif %}
+    </p>
+    <p id="scan-message" class="muted">{{ t.msg_keep }}</p>
+    <div id="scan-error" class="alert alert-error" role="alert" hidden></div>
+    <noscript>
+      <p>{{ t.noscript.format(path="/scans/" + scan.id + "/report") }}</p>
+    </noscript>
+  {% endif %}
+</section>
+{% endblock %}

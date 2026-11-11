@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.home_title }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">{{ t.hero_eyebrow.format(standard=standard) }}</p>
+  <h1>{{ t.hero_h1 }}</h1>
+  <p class="lede">
+    {{ t.hero_lede }}
+  </p>
+
+  <form method="post" action="/scan" class="scan-form">
+    <div class="form-grid">
+      <div class="field field-wide">
+        <label for="url">{{ t.label_url }}</label>
+        <input
+          id="url"
+          name="url"
+          type="text"
+          inputmode="url"
+          autocomplete="url"
+          required
+          placeholder="{{ t.ph_url }}"
+          value="{{ form.get('url', '') }}"
+        >
+        <p class="hint">{{ t.hint_url }}</p>
+      </div>
+
+      <div class="field">
+        <label for="company">{{ t.label_company }} <span class="optional">{{ t.optional }}</span></label>
+        <input
+          id="company"
+          name="company"
+          type="text"
+          autocomplete="organization"
+          maxlength="120"
+          placeholder="{{ t.ph_company }}"
+          value="{{ form.get('company', '') }}"
+        >
+      </div>
+
+      <div class="field">
+        <label for="contact_email">{{ t.label_contact }} <span class="optional">{{ t.optional }}</span></label>
+        <input
+          id="contact_email"
+          name="contact_email"
+          type="email"
+          autocomplete="email"
+          maxlength="200"
+          placeholder="{{ t.ph_email }}"
+          value="{{ form.get('contact_email', '') }}"
+        >
+      </div>
+      <div class="field">
+        <label for="max_pages">{{ t.label_pages }}</label>
+        {% set selected_pages = (form.get("max_pages") or max_pages)|int %}
+        <select id="max_pages" name="max_pages">
+          {% for n in page_options %}
+            <option value="{{ n }}"{% if selected_pages == n %} selected{% endif %}>{{ n }}</option>
+          {% endfor %}
+        </select>
+        <p class="hint">{{ t.hint_pages.format(max_pages=max_pages) }}</p>
+      </div>
+    </div>
+
+    {% if error %}
+      <div class="alert alert-error" role="alert">{{ error }}</div>
+    {% endif %}
+
+    <button type="submit" class="button button-primary">{{ t.button_run }}</button>
+    <p class="fine-print">{{ t.fine_print }}</p>
+  </form>
+</section>
+
+<section class="grid-3" aria-label="{{ t.scope_eyebrow }}" data-reveal>
+  <article class="card" data-tilt>
+    <p class="card-number" aria-hidden="true">01</p>
+    <h2>{{ t.card1_h }}</h2>
+    <p>{{ t.card1_p }}</p>
+  </article>
+  <article class="card" data-tilt>
+    <p class="card-number" aria-hidden="true">02</p>
+    <h2>{{ t.card2_h }}</h2>
+    <p>{{ t.card2_p }}</p>
+  </article>
+  <article class="card" data-tilt>
+    <p class="card-number" aria-hidden="true">03</p>
+    <h2>{{ t.card3_h }}</h2>
+    <p>{{ t.card3_p }}</p>
+  </article>
+</section>
+
+<section class="panel" data-reveal>
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">{{ t.scope_eyebrow }}</p>
+      <h2>{{ t.scope_h2 }}</h2>
+    </div>
+    <span class="badge badge-neutral">{{ standard }}</span>
+  </div>
+  <div class="split">
+    <div>
+      <p>{{ t.scope_p.format(max_pages=max_pages) }}</p>
+      <ul class="check-list">
+        <li>{{ t.scope_li1 }}</li>
+        <li>{{ t.scope_li2 }}</li>
+        <li>{{ t.scope_li3 }}</li>
+      </ul>
+    </div>
+    <div class="callout">
+      <h3>{{ t.callout_h3 }}</h3>
+      <p>{{ t.callout_p }}</p>
+    </div>
+  </div>
+</section>
+
+{% if recent %}
+<section class="panel" data-reveal>
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">{{ t.recent_eyebrow }}</p>
+      <h2>{{ t.recent_h2 }}</h2>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">{{ t.recent_caption }}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ t.th_url }}</th>
+          <th scope="col">{{ t.th_status }}</th>
+          <th scope="col">{{ t.th_risk }}</th>
+          <th scope="col">{{ t.th_created }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in recent %}
+          <tr>
+            <td><a href="/scans/{{ item.id }}">{{ item.url }}</a></td>
+            <td><span class="badge badge-neutral">{{ t['status_' + item.status] }}</span></td>
+            <td>
+              {% if item.summary %}
+                <span class="badge risk-{{ item.summary.risk_level|lower }}">{{ t['risk_' + (item.summary.risk_level|lower)] }}</span>
+              {% else %}
+                <span class="muted">—</span>
+              {% endif %}
+            </td>
+            <td>{{ item.created_at|dt }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

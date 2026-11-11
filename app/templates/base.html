@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ t.og_description }}">
+  <meta name="theme-color" content="#070b14">
+  <meta property="og:title" content="{{ t.og_title }}">
+  <meta property="og:description" content="{{ t.og_description }}">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f7fe8'/%3E%3Ctext x='32' y='42' font-family='sans-serif' font-size='18' font-weight='700' fill='white' text-anchor='middle'%3EEAA%3C/text%3E%3C/svg%3E">
+  <title>{% block title %}EAA Evidence{% endblock %}</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div class="bg-scene" aria-hidden="true"><span class="orb orb-1"></span><span class="orb orb-2"></span><span class="orb orb-3"></span></div>
+  <a class="skip-link" href="#main">{{ t.skip_link }}</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="{{ t.brand_home }}">
+        <span class="brand-mark" aria-hidden="true">EAA</span>
+        <span>Evidence</span>
+      <nav aria-label="Main navigation">
+        <a href="/">{{ t.nav_new }}</a>
+        <a href="/schedules">{{ t.nav_sched }}</a>
+        <a href="/api/meta">{{ t.nav_api }}</a>
+        <span class="lang-switch" role="group" aria-label="Language / Язык">
+          <a href="?lang=en"{% if lang == "en" %} class="active" aria-current="true"{% endif %}>EN</a><span aria-hidden="true">/</span><a href="?lang=ru"{% if lang == "ru" %} class="active" aria-current="true"{% endif %}>RU</a>
+        </span>
+      </nav>
+    </div>
+    <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress"></span></div>
+  </header>
+
+  <main id="main" class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>{{ t.footer_tag }}</p>
+      <p class="muted">{{ t.footer_sub }}</p>
+    </div>
+  </footer>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

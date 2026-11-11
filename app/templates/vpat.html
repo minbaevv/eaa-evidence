@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ vpat.title }} — EAA Evidence{% endblock %}
+
+{% block content %}
+<article class="panel" data-reveal>
+  <p class="eyebrow">VPAT / EN 301 549 · {{ t.vpat_draft }}</p>
+  <h1>{{ vpat.title }}</h1>
+  <p class="muted">{{ vpat.url }} · {{ vpat.updated }}</p>
+
+  <div class="statement-actions">
+    <a class="button" href="/scans/{{ scan.id }}/report">{{ t.vpat_back }}</a>
+    <a class="button" href="/scans/{{ scan.id }}/manual">{{ t.dl_manual }} ({{ manual_done }}/{{ manual_total }})</a>
+  </div>
+
+  <p class="disclaimer">{{ t.vpat_method_p }}</p>
+
+  <h2>{{ t.vpat_h2 }}</h2>
+  <p class="muted">{{ t.vpat_counts.format(dns=vpat.counts.does_not_support, p=vpat.counts.partially, n=vpat.counts.not_evaluated) }}</p>
+
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">{{ t.vpat_h2 }}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ t.vpat_clause }}</th>
+          <th scope="col">{{ t.vpat_criterion }}</th>
+          <th scope="col">{{ t.vpat_support }}</th>
+          <th scope="col">{{ t.vpat_remarks }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in vpat.rows %}
+          <tr>
+            <td><code>§{{ row.clause }}</code></td>
+            <td>{{ row.title }}</td>
+            <td>
+              {% if row.status == "Does Not Support" %}
+                <span class="badge impact-critical">{{ t.vpat_does_not }}</span>
+              {% elif row.status == "Partially Supports" %}
+                <span class="badge impact-serious">{{ t.vpat_partially }}</span>
+              {% else %}
+                <span class="badge badge-neutral">{{ t.vpat_not_eval }}</span>
+              {% endif %}
+            </td>
+            <td class="muted">{{ row.notes or "—" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="muted vpat-foot">{{ t.stmt_disclaimer }}</p>
+</article>
+{% endblock %}

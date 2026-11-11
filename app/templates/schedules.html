@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.nav_sched }} — EAA Evidence{% endblock %}
+
+{% block content %}
+<section class="panel" data-reveal>
+  <p class="eyebrow">{{ t.nav_sched }}</p>
+  <h1>{{ t.sched_h }}</h1>
+  <p class="muted">{{ t.sched_sub }}</p>
+
+  {% if schedules %}
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">{{ t.sched_h }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ t.th_url }}</th>
+            <th scope="col">{{ t.sched_interval }}</th>
+            <th scope="col">{{ t.sched_next }}</th>
+            <th scope="col">{{ t.sched_last }}</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in schedules %}
+            <tr>
+              <td><a href="/scans/{{ item.last_scan_id }}/report">{{ item.url }}</a></td>
+              <td>{{ item.interval_hours }} {{ t.sched_hours }}</td>
+              <td>{{ item.next_run_at|dt }}</td>
+              <td>{% if item.last_scan_id %}<a href="/scans/{{ item.last_scan_id }}/report">{{ item.last_scan_id[:8] }}</a>{% else %}—{% endif %}</td>
+              <td>
+                <form method="post" action="/schedules/{{ item.id }}/delete">
+                  <button type="submit" class="button">{{ t.sched_delete }}</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>{{ t.sched_empty }}</p>
+  {% endif %}
+</section>
+
+<section class="panel" data-reveal>
+  <h2>{{ t.sched_create_h }}</h2>
+  <form method="post" action="/schedules" class="scan-form sched-form">
+    <div class="form-grid">
+      <div class="field field-wide">
+        <label for="sched_url">{{ t.label_url }}</label>
+        <input id="sched_url" name="url" type="text" inputmode="url" required placeholder="{{ t.ph_url }}">
+      </div>
+      <div class="field">
+        <label for="sched_company">{{ t.label_company }} <span class="optional">{{ t.optional }}</span></label>
+        <input id="sched_company" name="company" type="text" maxlength="120" placeholder="{{ t.ph_company }}">
+      </div>
+      <div class="field">
+        <label for="sched_pages">{{ t.label_pages }}</label>
+        <select id="sched_pages" name="max_pages">
+          {% for n in page_options %}
+            <option value="{{ n }}"{% if n == 3 %} selected{% endif %}>{{ n }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="sched_interval">{{ t.sched_label_interval }}</label>
+        <select id="sched_interval" name="interval_hours">
+          {% for h in interval_options %}
+            <option value="{{ h }}"{% if h == 24 %} selected{% endif %}>{{ h }} {{ t.sched_hours }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="button button-primary">{{ t.button_run }}</button>
+  </form>
+</section>
+{% endblock %}

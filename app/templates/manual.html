@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.manual_h }} — EAA Evidence{% endblock %}
+
+{% block content %}
+<section class="panel narrow" data-reveal>
+  <p class="eyebrow">{{ t.manual_h }}</p>
+  <h1>{{ scan.company or scan.url }}</h1>
+  <p class="muted">{{ t.manual_sub }}</p>
+  <p class="muted">{{ t.manual_done.format(done=done_count, total=checks|length) }}</p>
+
+  <div class="statement-actions">
+    <a class="button" href="/scans/{{ scan.id }}/report">{{ t.vpat_back }}</a>
+    <a class="button" href="/scans/{{ scan.id }}/vpat">{{ t.dl_vpat }}</a>
+  </div>
+
+  {% for cid in checks %}
+    {% set state = states.get(cid, {"done": false, "note": ""}) %}
+    <form method="post" action="/scans/{{ scan.id }}/manual" class="issue-card manual-row">
+      <input type="hidden" name="check_id" value="{{ cid }}">
+      <span class="manual-check">
+        <input id="check-{{ cid }}" type="checkbox" name="done" value="1"{% if state.done %} checked{% endif %}>
+        <label for="check-{{ cid }}">{{ t['manual_' + cid] }}</label>
+      </span>
+      <input type="text" name="note" maxlength="500" placeholder="{{ t.note_ph }}" value="{{ state.note }}">
+      <button type="submit" class="button">{{ t.manual_save }}</button>
+    </form>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}{{ statement.title }} — EAA Evidence{% endblock %}
+
+{% block content %}
+<article class="panel statement" data-reveal>
+  <p class="eyebrow">{{ t.stmt_eyebrow }}</p>
+  <h1>{{ statement.title }}</h1>
+  <p class="muted">{{ t.updated }} {{ statement.updated }}</p>
+
+  <div class="statement-actions">
+    <button type="button" class="button button-primary" id="print-statement">{{ t.print_btn }}</button>
+    <a class="button" href="/scans/{{ scan.id }}/report">{{ t.back_report }}</a>
+  </div>
+
+  <section aria-labelledby="commitment-heading">
+    <h2 id="commitment-heading">{{ t.h_commitment }}</h2>
+    <p>{{ statement.commitment }}</p>
+  </section>
+
+  <section aria-labelledby="standard-heading">
+    <h2 id="standard-heading">{{ t.h_standard }}</h2>
+    <p><strong>{{ statement.status }}.</strong> {{ statement.standard }}</p>
+  </section>
+
+  <section aria-labelledby="measures-heading">
+    <h2 id="measures-heading">{{ t.h_measures }}</h2>
+    <ul class="check-list">
+      {% for measure in statement.measures %}
+        <li>{{ measure }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section aria-labelledby="known-heading">
+    <h2 id="known-heading">{{ t.h_known }}</h2>
+    {% if statement.known_issues %}
+      <ul class="check-list">
+        {% for issue in statement.known_issues %}
+          <li>{{ issue }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>{{ t.stmt_no_issues }}</p>
+    {% endif %}
+  </section>
+
+  <section aria-labelledby="feedback-heading">
+    <h2 id="feedback-heading">{{ t.h_feedback }}</h2>
+    <p>{{ statement.feedback }}</p>
+    <p>{{ statement.enforcement }}</p>
+  </section>
+
+  <section aria-labelledby="limits-heading">
+    <h2 id="limits-heading">{{ t.h_limits }}</h2>
+    <p>{{ statement.limitations }}</p>
+  </section>
+
+  <p class="disclaimer">
+    {{ t.stmt_disclaimer }}
+  </p>
+</article>
+{% endblock %}
